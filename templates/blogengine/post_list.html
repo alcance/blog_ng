@@ -1,14 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Blogz0r</title>
-</head>
-<body>
+{% extends "blogengine/includes/base.html" %}
+{% block content %}
     {% for post in object_list %}
-        <h1>{{ post.title }}</h1>
-        <h3>{{ post.pub_date }}</h3>
-        <p>{{ post.text }}</p>
+        <div class="post">
+            <h1>{{ post.title }}</h1>
+            <h3>{{ post.pub_date }}</h3>
+            <p>{{ post.text }}</p>
+        </div>
     {% endfor %}
-</body>
-</html>
+{% endblock content %}
