@@ -25,13 +25,13 @@ class PostTest(TestCase):
         post.pub_date = timezone.now()
         # Save it
         post.save()
-        """
-        # Check we can retrieve it
+         # Check we can retrieve it
+        '''
         1. Fetch all objects
         2. assert that there is only 1 post object
         3. retrive that post object
         4. assert that it is the same object as the post object we just saved
-        """
+        '''
         all_posts = Post.objects.all()
         self.assertEquals(len(all_posts), 1)
         only_post = all_posts[0]
@@ -96,3 +96,99 @@ class AdminTest(LiveServerTestCase):
         # Check 'Log in' in response
         response = self.client.get('/admin/')
         self.assertTrue('Log in' in response.content)
+
+    def test_create_post(self):
+        # Log in
+        self.client.login(username='dong', password="password")
+
+        # Check response code
+        response = self.client.get('/admin/blogengine/post/add')
+        self.assertTrue(response.status_code, 200)
+
+        # Create a new post
+        response = self.client.post('/admin/blogengine/post/add/', {
+            'title': 'My first post',
+            'text': 'This is my first blog post',
+            'pub_date_0': '2013-12-28',
+            'pub_date_1': '22:00:04'
+        },
+            follow=True
+        )
+        self.assertEquals(response.status_code, 200)
+
+        # Check added succesfully
+        self.assertTrue('added successfully' in response.content)
+
+        # Check new post now in database
+        all_posts = Post.objects.all()
+        self.assertEquals(len(all_posts), 1)
+
+    def test_edit_post(self):
+        # Create the post
+        post = Post()
+        post.title = 'My first post'
+        post.text = 'This is my first blog post'
+        post.pub_date = timezone.now()
+        post.save()
+
+        # Login
+        self.client.login(username='dong', password="password")
+
+        # Edit the post
+        '''
+        Here we create a new blog post
+        '''
+        response = self.client.post('/admin/blogengine/post/1/', {
+            'title': 'My second post',
+            'text': 'This is my second blog post',
+            'pub_date_0': '2013-12-28',
+            'pub_date_1': '22:00:01'
+        },
+            follow=True
+        )
+        self.assertEquals(response.status_code, 200)
+
+        # Check changed successfully
+        self.assertTrue('changed successfully' in response.content)
+
+        # Check post amended
+        '''
+        Resubmit with different values and check
+        we get expected response, and data in db
+        has been updated
+        '''
+        all_posts = Post.objects.all()
+        self.assertEquals(len(all_posts), 1)
+        only_post = all_posts[0]
+        self.assertEquals(only_post.title, 'My second post')
+        self.assertEquals(only_post.text, 'This is my second blog post')
+
+    def test_delete_post(self):
+        # Create the post
+        post = Post()
+        post.title = 'My first post'
+        post.text = 'My first blog post'
+        post.pub_date = timezone.now()
+        post.save()
+
+        # Check new post saved
+        all_posts = Post.objects.all()
+        self.assertEquals(len(all_posts), 1)
+
+        # Login
+        self.client.login(username='dong', password="password")
+
+        # Delete the post
+        response = self.client.post('/admin/blogengine/post/1/delete/', {
+            'post': 'yes'
+        },
+            follow=True
+        )
+        self.assertEquals(response.status_code, 200)
+
+        # Check deleted successfully
+        self.assertTrue('deleted successfully' in response.content)
+
+        # Check post amended
+        all_posts = Post.objects.all()
+        self.assertEquals(len(all_posts), 0)
