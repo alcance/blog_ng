@@ -1,0 +1,22 @@
+{
+  "name": "blog_ng",
+  "version": "0.0.0",
+  "authors": [
+    "Ivan Martinez <alcance.enlinea@gmail.com>"
+  ],
+  "description": "A blog engine in Django",
+  "license": "MIT",
+  "homepage": "http://www.github.com/alcance/",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "blogengine/static/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.0",
+    "html5-boilerplate": "~4.3.0"
+  }
+}
