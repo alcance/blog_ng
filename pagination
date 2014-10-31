@@ -1,0 +1,43 @@
+from django.core.paginator import Paginator
+objects = ['jhon', 'paul', 'george', 'ringo']
+p = Paginator(objects, 2)
+p.num_pages
+# OUT: 2
+p.count
+# OUT: 4
+p.page_range
+# OUT: [1, 2]
+page1 = p.page(1)
+page1
+# OUT: <Page 1 of 2>
+page1.object_list
+# OUT: ['jhon', 'paul']
+page2 = p.page(2)
+page2
+# OUT: <Page 2 of 2>
+page2.object_list
+# OUT: ['george', 'ringo']
+page2.has_next
+# OUT: <bound method Page.has_next of <Page 2 of 2>>
+page2.has_next()
+# OUT: False
+page2.has_previous()
+# OUT: True
+page2.next_page_number()
+# OUT: Traceback (most recent call last):
+# OUT:   File "<input>", line 1, in <module>
+# OUT:   File "/usr/local/lib/python2.7/dist-packages/django/core/paginator.py", line 138, in next_page_number
+# OUT:     return self.paginator.validate_number(self.number + 1)
+# OUT:   File "/usr/local/lib/python2.7/dist-packages/django/core/paginator.py", line 43, in validate_number
+# OUT:     raise EmptyPage('That page contains no results')
+# OUT: EmptyPage: That page contains no results
+page2.previous_page_number()
+# OUT: 1
+page2.start_index()
+# OUT: 3
+page2.end_index()
+# OUT: 4
+page1.end_index()
+# OUT: 2
+page1.start_index()
+# OUT: 1
