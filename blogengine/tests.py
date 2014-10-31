@@ -23,6 +23,7 @@ class PostTest(TestCase):
         # Set the attributes
         post.title = 'My first post'
         post.text = 'This is my first blog post'
+        post.slug = 'my-first-post'
         post.pub_date = timezone.now()
         # Save it
         post.save()
@@ -270,5 +271,5 @@ class PostViewTest(LiveServerTestCase):
         self.assertTrue(str(post.pub_date.day) in response.content)
 
         # Check the link is marked properly
-        marked_url = '<a href="http://127.0.0.1:800/">my first blog post</a>'
+        marked_url = '<a href="http://127.0.0.1:8000/">my first blog post</a>'
         self.assertTrue(marked_url in response.content)
