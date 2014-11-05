@@ -1,7 +1,13 @@
 import markdown
+
 from django.test import TestCase, LiveServerTestCase, Client
 from django.utils import timezone
+from django.contrib.flatpages.models import FlatPage
+from django.contrib.sites.models import Site
+
 from blogengine.models import Post
+
+
 '''
 Post model has:
 - title
@@ -14,6 +20,11 @@ What would you like to test?
 - save it
 - retrieve it
 '''
+
+
+class BaseAcceptanceTest(LiveServerTestCase):
+    def setUp(self):
+        self.client = Client()
 
 
 class PostTest(TestCase):
@@ -51,12 +62,8 @@ class PostTest(TestCase):
         self.assertEquals(only_post.pub_date.second, post.pub_date.second)
 
 
-class AdminTest(LiveServerTestCase):
+class AdminTest(BaseAcceptanceTest):
     fixtures = ['users.json']
-
-    def setUp(self):
-        # Create client
-        self.client = Client()
 
     def test_login(self):
         # Get login page
@@ -201,10 +208,7 @@ class AdminTest(LiveServerTestCase):
         self.assertEquals(len(all_posts), 0)
 
 
-class PostViewTest(LiveServerTestCase):
-    def setUp(self):
-        self.client = Client()
-
+class PostViewTest(BaseAcceptanceTest):
     def test_index(self):
         # Create the post
         post = Post()
