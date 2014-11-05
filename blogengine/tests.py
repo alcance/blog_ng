@@ -36,12 +36,19 @@ class PostTest(TestCase):
         # Create new post
         post = Post()
 
+        # Create the site
+        site = Site()
+        site.name = 'example.com'
+        site.domain = 'example.com'
+        site.save()
+
         # Set the attributes
         post.title = 'My first post'
         post.text = 'This is my first blog post'
         post.slug = 'my-first-post'
         post.pub_date = timezone.now()
         post.author = author
+        post.site = site
 
         # Save it
         post.save()
@@ -136,7 +143,8 @@ class AdminTest(BaseAcceptanceTest):
             'text': 'This is my first blog post',
             'pub_date_0': '2013-12-28',
             'pub_date_1': '22:00:04',
-            'slug': 'my-first-post'
+            'slug': 'my-first-post',
+            'site': '1'
         },
             follow=True
         )
@@ -158,6 +166,12 @@ class AdminTest(BaseAcceptanceTest):
         )
         author.save()
 
+        # Create the site
+        site = Site()
+        site.name = 'example.com'
+        site.domain = 'example.com'
+        site.save()
+
         # Create the post
         post = Post()
         post.title = 'My first post'
@@ -165,6 +179,7 @@ class AdminTest(BaseAcceptanceTest):
         post.slug = 'my-first-post'
         post.pub_date = timezone.now()
         post.author = author
+        post.site = '1'
         post.save()
 
         # Login
@@ -179,7 +194,8 @@ class AdminTest(BaseAcceptanceTest):
             'text': 'This is my second blog post',
             'pub_date_0': '2013-12-28',
             'pub_date_1': '22:00:01',
-            'slug': 'my-first-post'
+            'slug': 'my-first-post',
+            'site': '1'
         },
             follow=True
         )
@@ -209,6 +225,12 @@ class AdminTest(BaseAcceptanceTest):
         )
         author.save()
 
+        # Create the site
+        site = Site()
+        site.name = 'example.com'
+        site.domain = 'example.com'
+        site.save()
+
         # Create the post
         post = Post()
         post.title = 'My first post'
@@ -216,6 +238,7 @@ class AdminTest(BaseAcceptanceTest):
         post.slug = 'my-first-post'
         post.pub_date = timezone.now()
         post.author = author
+        post.site = site
         post.save()
 
         # Check new post saved
@@ -251,6 +274,12 @@ class PostViewTest(BaseAcceptanceTest):
         )
         author.save()
 
+        # Create the site
+        site = Site()
+        site.name = 'example.com'
+        site.domain = 'example.com'
+        site.save()
+
         # Create the post
         post = Post()
         post.title = 'My first post'
@@ -258,6 +287,7 @@ class PostViewTest(BaseAcceptanceTest):
         post.slug = 'my-first-post'
         post.pub_date = timezone.now()
         post.author = author
+        post.site = site
         post.save()
 
         # Check new post saved
@@ -292,6 +322,12 @@ class PostViewTest(BaseAcceptanceTest):
         )
         author.save()
 
+        # Create the site
+        site = Site()
+        site.name = 'exapmle.com'
+        site.domain = 'example.com'
+        site.save()
+
         # Create new post
         post = Post()
         post.title = 'My first post'
@@ -299,6 +335,7 @@ class PostViewTest(BaseAcceptanceTest):
         post.slug = 'my-first-post'
         post.pub_date = timezone.now()
         post.author = author
+        post.site = site
         post.save()
 
         # Check new post saved
