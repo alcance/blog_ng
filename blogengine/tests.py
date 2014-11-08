@@ -568,7 +568,7 @@ class PostViewTest(BaseAcceptanceTest):
 
         # Check the post text is in the response
         self.assertTrue(
-            markdown.markdown(post.category.text) in response.content
+            markdown.markdown(post.text) in response.content
         )
 
         # Check the post date is in the response
