@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 from django.views.generic import ListView, DetailView
-from .models import Post, Category
-from .views import CategoryListView
+from .models import Post, Category, Tag
+from .views import CategoryListView, TagListView
 
 urlpatterns = patterns(
     '',
@@ -14,7 +14,8 @@ urlpatterns = patterns(
 
     # Individual posts
     url(
-        r'^(?P<pub_date__year>\d{4})/(?P<pub_date__month>\d{1,2})/(?P<slug>[a-zA-Z0-9-]+)/?$', DetailView.as_view(
+        r'^(?P<pub_date__year>\d{4})/(?P<pub_date__month>\d{1,2})/(?P<slug>[a-zA-Z0-9-]+)/?$',
+        DetailView.as_view(
             model=Post,
         )),
 
@@ -22,5 +23,11 @@ urlpatterns = patterns(
     url(
         r'^category/(?P<slug>[a-zA-Z0-9-]+)/?$',
         CategoryListView.as_view(paginate_by=5, model=Category)
+    ),
+
+    # Tags
+    url(
+        r'^tag/(?P<slug>[a-zA-Z0-9]+)/?$',
+        TagListView.as_view(paginate_by=5, model=Tag)
     ),
 )

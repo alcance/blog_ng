@@ -552,6 +552,12 @@ class PostViewTest(BaseAcceptanceTest):
         category.description = 'The Python programming language'
         category.save()
 
+        # Create the tag
+        tag = Tag()
+        tag.name = 'perl'
+        tag.description = 'The Perl programming language'
+        tag.save()
+
         # Create author
         author = User.objects.create_user(
             'testuser',
@@ -576,6 +582,7 @@ class PostViewTest(BaseAcceptanceTest):
         post.site = site
         post.category = category
         post.save()
+        post.tag.add(tag)
 
         # Check new post saved
         all_posts = Post.objects.all()
@@ -610,6 +617,12 @@ class PostViewTest(BaseAcceptanceTest):
         category.description = 'The Python programming language'
         category.save()
 
+        # Create the tag
+        tag = Tag()
+        tag.name = 'perl'
+        tag.description = 'The Perl programming language'
+        tag.save()
+
         # Create author
         author = User.objects.create_user(
             'testuser',
@@ -633,6 +646,8 @@ class PostViewTest(BaseAcceptanceTest):
         post.author = author
         post.site = site
         post.category = category
+        post.save()
+        post.tag.add(tag)
         post.save()
 
         # Check new post saved
@@ -724,6 +739,66 @@ class PostViewTest(BaseAcceptanceTest):
 
         # Check the link is marked up properly
         marked_url = '<a href="http://127.0.0.1:8000/">my first blog post</a>'
+        self.assertTrue(marked_url in response.content)
+
+    def test_tag_page(self):
+        # Create the tag
+        tag = Tag()
+        tag.name = 'python'
+        tag.description = 'The Python programming language'
+        tag.save()
+
+        # Create the author
+        author = User.objects.create_user(
+            'testuser',
+            'user@example.com',
+            'password'
+        )
+        author.save()
+
+        # Create the site
+        site = Site()
+        site.name = 'example.com'
+        site.domain = 'example.com'
+        site.save()
+
+        # Create the post
+        post = Post()
+        post.title = 'My first post'
+        post.text = 'This is [my first blog post](http://127.0.0.1:8000)'
+        post.slug = 'my-first-post'
+        post.pub_date = timezone.now()
+        post.author = author
+        post.site = site
+        post.save()
+        post.tag.add(tag)
+
+        # Check new post saved
+        all_posts = Post.objects.all()
+        self.assertEquals(len(all_posts), 1)
+        only_post = all_posts[0]
+        self.assertEquals(only_post, post)
+
+        # Get the tag URL
+        tag_url = post.tag.all()[0].get_absolute_url()
+
+        # Fetch the tag
+        response = self.client.get(tag_url)
+        self.assertEquals(response.status_code, 200)
+
+        # Check the tag name is in the response
+        self.assertTrue(post.tag.all()[0].name in response.content)
+
+        # Check the post text is in the response
+        self.assertTrue(markdown.markdown(post.text) in response.content)
+
+        # Check the post date is in the response
+        self.assertTrue(str(post.pub_date.year) in response.content)
+        self.assertTrue(post.pub_date.strftime('%b') in response.content)
+        self.assertTrue(str(post.pub_date.day) in response.content)
+
+        # Check the link is marked up properly
+        marked_url = '<a href="http://127.0.0.1:8000">my first blog post</a>'
         self.assertTrue(marked_url in response.content)
 
 
