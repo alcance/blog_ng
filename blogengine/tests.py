@@ -6,7 +6,7 @@ from django.contrib.flatpages.models import FlatPage
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 
-from blogengine.models import Post, Category
+from blogengine.models import Post, Category, Tag
 
 
 '''
@@ -24,6 +24,30 @@ What would you like to test?
 
 
 class PostTest(TestCase):
+    def test_create_tag(self):
+        # Create the new tag
+        tag = Tag()
+
+        # Add attributtes
+        tag.name = 'python'
+        tag.description = 'The Python programming language'
+
+        # Save it
+        tag.save()
+
+        # Check we can find it
+        all_tags = Tag.objects.all()
+        self.assertEquals(len(all_tags), 1)
+        only_tag = all_tags[0]
+        self.assertEquals(only_tag, tag)
+
+        # Check attributtes
+        self.assertEquals(only_tag.name, 'python')
+        self.assertEquals(
+            only_tag.description,
+            'The Python programming language'
+        )
+
     def test_create_category(self):
         # Create the category
         category = Category()
@@ -54,6 +78,12 @@ class PostTest(TestCase):
         category.description = 'The Python programming language'
         category.save()
 
+        # Create the tag
+        tag = Tag()
+        tag.name = 'python'
+        tag.description = 'The Python programming language'
+        tag.save()
+
         # Create the author
         author = User.objects.create_user(
             'testuser',
@@ -62,14 +92,14 @@ class PostTest(TestCase):
         )
         author.save()
 
-        # Create new post
-        post = Post()
-
         # Create the site
         site = Site()
         site.name = 'example.com'
         site.domain = 'example.com'
         site.save()
+
+        # Create new post
+        post = Post()
 
         # Set the attributes
         post.title = 'My first post'
@@ -81,6 +111,10 @@ class PostTest(TestCase):
         post.category = category
 
         # Save it
+        post.save()
+
+        # Add tags
+        post.tag.add(tag)
         post.save()
 
          # Check we can retrieve it
@@ -110,6 +144,17 @@ class PostTest(TestCase):
         self.assertEquals(only_post.category.name, 'python')
         self.assertEqual(
             only_post.category.description, 'The Python programming language'
+        )
+
+        # Check tags
+        post_tags = only_post.tag.all()
+        self.assertEquals(len(post_tags), 1)
+        only_tag_post = post_tags[0]
+        self.assertEquals(only_tag_post, tag)
+        self.assertEquals(only_tag_post.name, 'python')
+        self.assertEquals(
+            only_tag_post.description,
+            'The Python programming language'
         )
 
 
@@ -145,7 +190,7 @@ class AdminTest(BaseAcceptanceTest):
         # Log in
         self.client.login(username='dong', password="password")
 
-        # Check for reponse code
+        # Check for response code
         response = self.client.get('/admin/')
         self.assertEquals(response.status_code, 200)
 
@@ -170,12 +215,18 @@ class AdminTest(BaseAcceptanceTest):
         category.description = 'The Python programming language'
         category.save()
 
+        # Create the tag
+        tag = Tag()
+        tag.name = 'python'
+        tag.description = 'The Python programming language'
+        tag.save()
+
         # Log in
         self.client.login(username='dong', password="password")
 
         # Check response code
-        response = self.client.get('/admin/blogengine/post/add')
-        self.assertTrue(response.status_code, 200)
+        response = self.client.get('/admin/blogengine/post/add/')
+        self.assertEquals(response.status_code, 200)
 
         # Create a new post
         response = self.client.post('/admin/blogengine/post/add/', {
@@ -185,9 +236,9 @@ class AdminTest(BaseAcceptanceTest):
             'pub_date_1': '22:00:04',
             'slug': 'my-first-post',
             'site': '1',
-            'category': '1'
-        },
-            follow=True
+            'category': '1',
+            'tag': '1'
+            }, follow=True
         )
         self.assertEquals(response.status_code, 200)
 
@@ -204,6 +255,12 @@ class AdminTest(BaseAcceptanceTest):
         category.name = 'python'
         category.description = 'The Python programming language'
         category.save()
+
+        # Create the tag
+        tag = Tag()
+        tag.name = 'python'
+        tag.description = 'The Python programming language'
+        tag.save()
 
         # Create author
         author = User.objects.create_user(
@@ -228,6 +285,8 @@ class AdminTest(BaseAcceptanceTest):
         post.author = author
         post.site = site
         post.save()
+        post.tag.add(tag)
+        post.save()
 
         # Login
         self.client.login(username='dong', password="password")
@@ -243,7 +302,8 @@ class AdminTest(BaseAcceptanceTest):
             'pub_date_1': '22:00:01',
             'slug': 'my-first-post',
             'site': '1',
-            'category': '1'
+            'category': '1',
+            'tag': '1'
         },
             follow=True
         )
@@ -271,6 +331,12 @@ class AdminTest(BaseAcceptanceTest):
         category.description = 'The Python programming language'
         category.save()
 
+        # Create the tag
+        tag = Tag()
+        tag.name = 'python'
+        tag.description = 'The Python programming language'
+        tag.save()
+
         # Create author
         author = User.objects.create_user(
             'testuser',
@@ -294,6 +360,8 @@ class AdminTest(BaseAcceptanceTest):
         post.author = author
         post.site = site
         post.category = category
+        post.save()
+        post.tag.add(tag)
         post.save()
 
         # Check new post saved
@@ -396,6 +464,84 @@ class AdminTest(BaseAcceptanceTest):
         # Check category deleted
         all_categories = Category.objects.all()
         self.assertEquals(len(all_categories), 0)
+
+    def test_create_tag(self):
+        # Log in
+        self.client.login(username='dong', password='password')
+
+        # Check response code
+        response = self.client.get('/admin/blogengine/tag/add/')
+        self.assertEquals(response.status_code, 200)
+
+        # Create a new tag
+        response = self.client.post('/admin/blogengine/tag/add/', {
+            'name': 'python',
+            'description': 'The Python programming language'
+            }, follow=True
+        )
+        self.assertEquals(response.status_code, 200)
+
+        # Check added successfully
+        self.assertTrue('added successfully' in response.content)
+
+        # Check new tag is in database
+        all_tags = Tag.objects.all()
+        self.assertEquals(len(all_tags), 1)
+
+    def test_edit_tag(self):
+        # Create the tag
+        tag = Tag()
+        tag.name = 'python'
+        tag.description = 'The Python programming language'
+        tag.save()
+
+        # Log in
+        self.client.login(username='dong', password="password")
+
+        # Edit the tag
+        response = self.client.post('/admin/blogengine/tag/1/', {
+            'name': 'python',
+            'description': 'The Python programming language'
+            }, follow=True
+        )
+        self.assertEquals(response.status_code, 200)
+
+        # Check changed successfully
+        self.assertTrue('changed successfully' in response.content)
+
+        # Check tag amended
+        all_tags = Tag.objects.all()
+        self.assertEquals(len(all_tags), 1)
+        only_tag = all_tags[0]
+        self.assertEquals(only_tag.name, 'python')
+        self.assertEquals(
+            only_tag.description,
+            'The Python programming language'
+        )
+
+    def test_delete_tag(self):
+        # Create the tag
+        tag = Tag()
+        tag.name = 'python'
+        tag.description = 'The Python programming language'
+        tag.save()
+
+        # Log in
+        self.client.login(username='dong', password="password")
+
+        # Delete the tag
+        response = self.client.post('/admin/blogengine/tag/1/delete/', {
+            'post': 'yes'
+            }, follow=True
+        )
+        self.assertEquals(response.status_code, 200)
+
+        # Check deleted successfully
+        self.assertTrue('deleted successfully' in response.content)
+
+        # Check tag deleted
+        all_tags = Tag.objects.all()
+        self.assertEquals(len(all_tags), 0)
 
 
 class PostViewTest(BaseAcceptanceTest):
