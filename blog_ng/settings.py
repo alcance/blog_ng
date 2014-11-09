@@ -89,3 +89,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
+
+# django-jenkins setup
+INSTALLED_APPS += ('django_jenkins',)
+JENKINS_TASKS = (
+    'django_jenkins.tasks.run_pylint',
+    'django_jenskins.tasks.with_coverage',
+)
+PROJECT_APPS = ['blogengine']
