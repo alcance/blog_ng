@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import ListView
+from django.contrib.syndication.views import Feed
 from .models import Category, Post, Tag
 
 
@@ -12,6 +13,7 @@ class CategoryListView(ListView):
         except Category.DoesNotExist:
             return Post.objects.none()
 
+
 class TagListView(ListView):
     def get_queryset(self):
         slug = self.kwargs['slug']
@@ -20,3 +22,18 @@ class TagListView(ListView):
             return tag.post_set.all()
         except Tag.DoesNotExist:
             return Post.objects.none()
+
+
+class PostsFeed(Feed):
+    title = "RSS feed - posts",
+    link = "/feeds/posts/"
+    description = "RSS feed - blog posts"
+
+    def items(self):
+        return Post.objects.order_by('-pub_date')
+
+    def item_title(self, item):
+        return item.title
+
+    def item_description(self, item):
+        return item.text

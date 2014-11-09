@@ -1,4 +1,5 @@
 import markdown
+import feedparser
 
 from django.test import TestCase, LiveServerTestCase, Client
 from django.utils import timezone
@@ -836,3 +837,70 @@ class FlatPageViewTest(BaseAcceptanceTest):
         # Check title and content in response
         self.assertTrue('About me' in response.content)
         self.assertTrue('All about me' in response.content)
+
+
+class FeedTest(BaseAcceptanceTest):
+    def test_all_post_feed(self):
+        # Create the categogy
+        category = Category()
+        category.name = 'python'
+        category.description = 'The Python programming language'
+        category.save()
+
+        # Create the tag
+        tag = Tag()
+        tag.name = 'python'
+        tag.description = 'The Python programming language'
+        tag.save()
+
+        # Create the author
+        author = User.objects.create_user(
+            'testuser',
+            'user@example.com',
+            'password'
+        )
+        author.save()
+
+        # Create the site
+        site = Site()
+        site.name = 'example.com'
+        site.domain = 'example.com'
+        site.save()
+
+        # Create the post
+        post = Post()
+        post.title = 'My first post'
+        post.text = 'This is my first blog post'
+        post.slug = 'my-first-post'
+        post.pub_date = timezone.now()
+        post.author = author
+        post.site = site
+        post.category = category
+
+        # Save it
+        post.save()
+
+        # Add the tag
+        post.tag.add(tag)
+        post.save()
+
+        # Check we can find it
+        all_posts = Post.objects.all()
+        self.assertEquals(len(all_posts), 1)
+        only_post = all_posts[0]
+        self.assertEquals(only_post, post)
+
+        # Fetch the feed
+        response = self.client.get('/feeds/posts/')
+        self.assertEquals(response.status_code, 200)
+
+        # Parse the feed
+        feed = feedparser.parse(response.content)
+
+        # Check the length
+        self.assertEquals(len(feed.entries), 1)
+
+        # Check post retrieved is the correct one
+        feed_post = feed.entries[0]
+        self.assertEquals(feed_post.title, post.title)
+        self.assertEquals(feed_post.description, post.text)
