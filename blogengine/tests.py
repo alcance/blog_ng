@@ -32,6 +32,7 @@ class PostTest(TestCase):
         # Add attributtes
         tag.name = 'python'
         tag.description = 'The Python programming language'
+        tag.slug = 'python'
 
         # Save it
         tag.save()
@@ -48,6 +49,7 @@ class PostTest(TestCase):
             only_tag.description,
             'The Python programming language'
         )
+        self.assertEquals(only_tag.slug, 'python')
 
     def test_create_category(self):
         # Create the category
@@ -56,6 +58,7 @@ class PostTest(TestCase):
         # Add attributes
         category.name = 'python'
         category.description = 'The Python programming language'
+        category.slug = 'python'
 
         # Save it
         category.save()
@@ -67,10 +70,12 @@ class PostTest(TestCase):
         self.assertEquals(only_category, category)
 
         # Check attributes
-        self.assertTrue(only_category.name, 'python')
-        self.assertTrue(
+        self.assertEquals(only_category.name, 'python')
+        self.assertEquals(
             only_category.description, 'The Python programming language'
         )
+        print only_category.slug
+        self.assertEquals(only_category.slug, 'python')
 
     def test_create_post(self):
         # Create the category
