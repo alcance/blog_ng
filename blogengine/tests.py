@@ -802,6 +802,18 @@ class PostViewTest(BaseAcceptanceTest):
         marked_url = '<a href="http://127.0.0.1:8000">my first blog post</a>'
         self.assertTrue(marked_url in response.content)
 
+    def test_nonexistent_category_page(self):
+        category_url = '/category/blah/'
+        response = self.client.get(category_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('No posts found' in response.content)
+
+    def test_nonexistent_tag_page(self):
+        tag_url = '/tag/blah/'
+        response = self.client.get(tag_url)
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue('No posts found' in response.content)
+
 
 class FlatPageViewTest(BaseAcceptanceTest):
     def test_create_flat_page(self):
