@@ -1,15 +1,26 @@
 {% extends "blogengine/includes/base.html" %}
 
     {% load custom_markdown %}
+
     {% block content %}
-        {% for post in object_list %}
-            <div class="post">
-                <h1><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h1>
-                <h3>{{ post.pub_date }}</h3>
-                <p>{{ post.text|custom_markdown }}</p>
-            </div>
-            <a href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>
-        {% endfor %}
+
+        {% if object_list %}
+            {% for post in object_list %}
+                <div class="post">
+                    <h1><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h1>
+                    <h3>{{ post.pub_date }}</h3>
+                    <p>{{ post.text|custom_markdown }}</p>
+                </div>
+                <a href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>
+
+                {% for tag in post.tag.all %}
+                    <a href="{{ tag.get_absolute_url }}">{{ tag.name }}</a>
+                {% endfor %}
+            {% endfor %}
+        {% else %}
+            <p>No posts found</p>
+        {% endif %}
+
         {% if page_obj.has_previous %}
             <a href="?page={{ page_obj.previous_page_number }}">Previous Page</a>
         {% endif %}
@@ -19,4 +30,5 @@
         {% if page_obj.has_next %}
             <a href="?page={{ page_obj.next_page_number }}">Next page</a>
         {% endif %}
+
     {% endblock content %}
