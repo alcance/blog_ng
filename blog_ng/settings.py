@@ -52,6 +52,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'blog_ng.urls'
@@ -98,8 +99,6 @@ JENKINS_TASKS = (
     'django_jenkins.tasks.with_coverage',
 )
 PROJECT_APPS = ['blogengine']
-
-
 # Heroku config
 # Parse datbase configuration from #DATABASE_URL
 import dj_database_url
@@ -117,3 +116,5 @@ STATIC_ROOT = 'staticfiles'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
