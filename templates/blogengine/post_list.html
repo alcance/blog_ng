@@ -6,29 +6,47 @@
 
         {% if object_list %}
             {% for post in object_list %}
-                <div class="post">
+                <div class="post col-md-12">
                     <h1><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h1>
                     <h3>{{ post.pub_date }}</h3>
-                    <p>{{ post.text|custom_markdown }}</p>
+                    {{ post.text|custom_markdown }}
                 </div>
-                <a href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>
+                {% if post.category %}
 
-                {% for tag in post.tag.all %}
-                    <a href="{{ tag.get_absolute_url }}">{{ tag.name }}</a>
-                {% endfor %}
+                    <div class="col-md-12">
+                        <a href="{{ post.category.get_absolute_url }}">
+                            <span class="label label-primary">
+                                {{ post.category.name }}
+                            </span>
+                        </a>
+                    </div>
+
+                {% endif %}
+                {% if post.tag %}
+                    {% for tag in post.tag.all %}
+                        <div class="col-md-12">
+                            <a href="{{ tag.get_absolute_url }}">
+                                <span class="label label-success">
+                                    {{ tag.name }}
+                                </span>
+                            </a>
+                        </div>
+                    {% endfor %}
+                {% endif %}
             {% endfor %}
         {% else %}
             <p>No posts found</p>
         {% endif %}
-
-        {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}">Previous Page</a>
-        {% endif %}
-        <span class="current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-        </span>
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">Next page</a>
-        {% endif %}
+        <ul class="pager">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">Previous Page</a>
+            {% endif %}
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Next page</a>
+            {% endif %}
+        </ul>
 
     {% endblock content %}
