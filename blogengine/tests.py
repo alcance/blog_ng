@@ -74,7 +74,6 @@ class PostTest(TestCase):
         self.assertEquals(
             only_category.description, 'The Python programming language'
         )
-        print only_category.slug
         self.assertEquals(only_category.slug, 'python')
 
     def test_create_post(self):
@@ -830,6 +829,7 @@ class PostViewTest(BaseAcceptanceTest):
         self.assertTrue(post.tag.all()[0].name in response.content)
 
         # Check the post text is in the response
+        print type(markdown.markdown(post.text))
         self.assertTrue(markdown.markdown(post.text) in response.content)
 
         # Check the post date is in the response
