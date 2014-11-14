@@ -7,7 +7,6 @@ https://docs.djangoproject.com/en/1.6/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 SITE_ID = 1
 
@@ -43,6 +42,7 @@ INSTALLED_APPS = (
     'django.contrib.flatpages',
     'django.contrib.syndication',
     'debug_toolbar',
+    'django_extensions',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -53,6 +53,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
 ROOT_URLCONF = 'blog_ng.urls'
@@ -100,10 +102,9 @@ JENKINS_TASKS = (
 )
 PROJECT_APPS = ['blogengine']
 
-DEBUG_TOOLBAR_PATCH_SETTINGS = False
-
 # Heroku config
 # Parse datbase configuration from #DATABASE_URL
+
 import dj_database_url
 DATABASES['default'] = dj_database_url.config(default="sqlite://db.sqlite3")
 
@@ -119,3 +120,40 @@ STATIC_ROOT = 'staticfiles'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+
+try:
+    import sys
+    if sys.argv[1] == 'runserver' or sys.argv[1] == 'runserver_plus':
+        DEBUG_TOOLBAR_PATCH_SETTINGS = DEBUG
+    else:
+        DEBUG_TOOLBAR_PATCH_SETTINGS = False
+except IndexError:
+        DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
+
+def get_cache():
+    import os
+    try:
+        os.environ['MEMCACHE_SERVERS'] = os.environ['MEMCACHE_SERVERS'].replace(',', ';')
+        os.environ['MEMCACHE_USERNAME'] = os.environ['MEMCACHE_USERNAME']
+        os.environ['MEMCACHE_PASSWORD'] = os.environ['MEMCACHE_PASSWORD']
+        return {
+            'default': {
+                'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
+                'TIMEOUT': 300,
+                'BINARY': True,
+                'OPTIONS': {'tcp_nodelay': True}
+            }
+        }
+    except:
+        return {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
+            }
+        }
+
+CACHES = get_cache()
+CACHE_MIDDLEWARE_ALIAS = 'default'
+CACHE_MIDDLEWARE_SECONDS = 300
+CACHE_MIDDLEWARE_KEY_PREFIX = ''
